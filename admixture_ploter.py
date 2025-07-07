@@ -490,6 +490,10 @@ def plot_admixture(k_list, q_files, pop2_order, pop1_order, sample_order, ck_map
     # Add Pop1 and Pop2 labels below the last subplot
     ax = plt.subplot(gs[-1])
     
+    # Calculate maximum Pop1 label length for dynamic Pop2 positioning
+    max_pop1_length = 0
+    displayed_pop1s = []
+    
     # Add Pop1 labels (only for Pop1s with more than 5 samples)
     for i, pop1 in enumerate(pop1_order):
         if pop1 in pop1_positions:
@@ -501,6 +505,13 @@ def plot_admixture(k_list, q_files, pop2_order, pop1_order, sample_order, ck_map
                 mid_pos = pop1_positions[pop1] + (end_pos - pop1_positions[pop1])/2
                 ax.annotate(pop1, xy=(mid_pos, -0.05), xycoords=('data', 'axes fraction'), 
                            ha='center', va='top', fontsize=8, rotation=-90)
+                displayed_pop1s.append(pop1)
+                max_pop1_length = max(max_pop1_length, len(pop1))
+    
+    # Calculate dynamic Pop2 label position based on Pop1 label length
+    # Base position is -0.15, adjust downward based on Pop1 string length
+    # Each character adds approximately 0.016 to the offset (empirically determined)
+    pop2_y_offset = -0.15 - (max_pop1_length * 0.016)
     
     # Add Pop2 labels
     for i, pop2 in enumerate(pop2_order):
@@ -508,7 +519,7 @@ def plot_admixture(k_list, q_files, pop2_order, pop1_order, sample_order, ck_map
             next_pop2 = pop2_order[i+1] if i < len(pop2_order)-1 else None
             end_pos = pop2_positions.get(next_pop2, len(sample_order))
             mid_pos = pop2_positions[pop2] + (end_pos - pop2_positions[pop2])/2
-            ax.annotate(pop2, xy=(mid_pos, -0.15), xycoords=('data', 'axes fraction'), 
+            ax.annotate(pop2, xy=(mid_pos, pop2_y_offset), xycoords=('data', 'axes fraction'), 
                        ha='center', va='top', fontsize=12, fontweight='bold')
     
     # Add legend
